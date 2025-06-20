@@ -129,9 +129,9 @@ $data: 欲儲存的資料陣列 (array)
 */
 function save($data){
     if(isset($data['id'])){
-        update($this->table,$data);
+        $this->update($this->table,$data);
     }else{
-        insert($this->table,$data);
+        $this->insert($this->table,$data);
     }
 }
 
@@ -178,4 +178,3 @@ $Item=new DB('items');
 $Sales=new DB('sales');
 dd($Item->find(['id'=>4]));
 
-$Item->q($sql);
