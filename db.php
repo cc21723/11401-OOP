@@ -138,14 +138,14 @@ array2sql($array)
 $array: 欲轉換的條件或資料陣列 (array)
 回傳: 轉換成SQL語法片段的陣列 (array)
 */
-function array2sql($array){
+/* function array2sql($array){
     $tmp=[];
     foreach($array as $key=>$value){
         $tmp[]="`$key`='$value'";
     }
 
     return $tmp;
-}
+} */
 
 /*
 q($sql)
@@ -182,7 +182,7 @@ function all($array=null,$str=null){
     $sql="SELECT * FROM $this->table ";
 
         if(is_array($array)){
-            $tmp=array2sql($array);
+            $tmp=$this->array2sql($array);
             $sql = $sql ." WHERE ".join(" AND ", $tmp);
         }else{
             $sql .= $array;
@@ -196,9 +196,111 @@ function all($array=null,$str=null){
 
 }
 
+/*
+find($table, $id)
+$table: 資料表名稱 (string)
+$id: 主鍵值或條件陣列 (int|string|array)
+    - 若為陣列，則產生多條件查詢
+    - 若為單一值，則以id欄位查詢
+回傳: 查詢到的單筆資料 (關聯式陣列)
+*/
+function find($id){
+    if(is_array($id)){
+        $tmp=$this->array2sql($id);
+        $sql="SELECT * FROM $this->table WHERE ".join(" AND ",$tmp);
+    }else{
+        $sql="SELECT * FROM $this->table WHERE id='$id'";
+    }
+
+    //echo  $sql;
+
+    return $this->pdo->query($sql)->fetch(PDO::FETCH_ASSOC);
+}
+
+/*
+update($table, $data)
+$table: 資料表名稱 (string)
+$data: 欲更新的資料陣列，必須包含id欄位 (array)
+回傳: 執行結果 (成功筆數)
+*/
+function update($data){
+    $tmp=$this->array2sql($data);
+
+    $sql="UPDATE $this->table SET ".join(" , ",$tmp)."
+                      WHERE id='{$data['id']}'";
+    
+     echo $sql;
+    return $this->pdo->exec($sql);
+
+}
+
+/*
+insert($table, $data)
+$table: 資料表名稱 (string)
+$data: 欲新增的資料陣列 (array)
+回傳: 執行結果 (成功筆數)
+*/
+function insert($data){
+
+    $keys=array_keys($data);
+    $sql="INSERT INTO $this->table (`".join("`,`",$keys)."`) values('".join("','",$data)."');";
+    echo $sql;
+    return $this->pdo->exec($sql);
+}
+
+/*
+save($table, $data)
+$table: 資料表名稱 (string)
+$data: 欲儲存的資料陣列 (array)
+功能: 若$data有id欄位則執行update，否則執行insert
+*/
+function save($data){
+    if(isset($data['id'])){
+        update($this->table,$data);
+    }else{
+        insert($this->table,$data);
+    }
+}
+
+/*
+del($table, $id)
+$table: 資料表名稱 (string)
+$id: 主鍵值或條件陣列 (int|string|array)
+    - 若為陣列，則產生多條件刪除
+    - 若為單一值，則以id欄位刪除
+回傳: 執行結果 (成功筆數)
+*/
+function del($id){
+    $sql="DELETE FROM $this->table WHERE ";
+    if(is_array($id)){
+        $tmp=$this->array2sql($id);
+        $sql .= join(" AND ",$tmp);
+    }else{
+        $sql .= "id='$id'";
+    }
+
+    //echo  $sql;
+
+    return $this->pdo->exec($sql);
+}
+
+/*
+array2sql($array)
+$array: 欲轉換的條件或資料陣列 (array)
+回傳: 轉換成SQL語法片段的陣列 (array)
+*/
+private function array2sql($array){
+    $tmp=[];
+    foreach($array as $key=>$value){
+        $tmp[]="`$key`='$value'";
+    }
+
+    return $tmp;
+}
+
 
 }
 
 $Item=new DB('items');
-
-dd($Item->all());
+$Sales=new DB('sales');
+dd($Item->find(['id'=>4]));
