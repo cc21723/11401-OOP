@@ -74,6 +74,7 @@ Interface PersonInterface {
 
 class Man extends Person implements PersonInterface {
     private $gender='男性';
+    public static  $skin='yellow';
 
     function getGender(){
         return $this->gender;
@@ -81,9 +82,14 @@ class Man extends Person implements PersonInterface {
     function say(){
 
     }
+
+    static function getSkin(){
+        return self::$skin;
+    }   
 }
 class WoMan extends Person implements PersonInterface {
     private $gender='女性';
+    public $skin='white';
 
     function getGender(){
         return $this->gender;
@@ -91,15 +97,20 @@ class WoMan extends Person implements PersonInterface {
         function say(){
         
     }
+    static function getSkin(){
+        return self::$skin;
+    }  
 }
 
-$man=new Man('John', 25);
+/* $man=new Man('John', 25);
 echo $man->getName();
 echo "<br>";
 echo $man->getGender();
 echo "<br>";
-$man->greet();
-
+$man->greet(); */
+echo Man::$skin;
+echo Man::getSkin();
+echo "<hr>";
 $woman=new Woman('Jane', 22);
 echo $woman->getName();
 echo "<br>";
